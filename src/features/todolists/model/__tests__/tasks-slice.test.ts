@@ -8,22 +8,70 @@ import {
   type TasksState,
 } from "../tasks-slice"
 import { createTodolistAC, deleteTodolistAC } from "../todolists-slice"
+import { TaskPriority, TaskStatus } from "@/common/enums"
 
 let startState: TasksState = {}
 
 beforeEach(() => {
-  startState = {
-    todolistId1: [
-      { id: "1", title: "CSS", isDone: false },
-      { id: "2", title: "JS", isDone: true },
-      { id: "3", title: "React", isDone: false },
-    ],
-    todolistId2: [
-      { id: "1", title: "bread", isDone: false },
-      { id: "2", title: "milk", isDone: true },
-      { id: "3", title: "tea", isDone: false },
-    ],
+  const taskDefaultValues = {
+    description: "",
+    deadline: "",
+    addedDate: "",
+    startDate: "",
+    priority: TaskPriority.Low,
+    order: 0,
   }
+
+  beforeEach(() => {
+    startState = {
+      todolistId1: [
+        {
+          id: "1",
+          title: "CSS",
+          status: TaskStatus.New,
+          todoListId: "todolistId1",
+          ...taskDefaultValues,
+        },
+        {
+          id: "2",
+          title: "JS",
+          status: TaskStatus.Completed,
+          todoListId: "todolistId1",
+          ...taskDefaultValues,
+        },
+        {
+          id: "3",
+          title: "React",
+          status: TaskStatus.New,
+          todoListId: "todolistId1",
+          ...taskDefaultValues,
+        },
+      ],
+      todolistId2: [
+        {
+          id: "1",
+          title: "bread",
+          status: TaskStatus.New,
+          todoListId: "todolistId2",
+          ...taskDefaultValues,
+        },
+        {
+          id: "2",
+          title: "milk",
+          status: TaskStatus.Completed,
+          todoListId: "todolistId2",
+          ...taskDefaultValues,
+        },
+        {
+          id: "3",
+          title: "tea",
+          status: TaskStatus.New,
+          todoListId: "todolistId2",
+          ...taskDefaultValues,
+        },
+      ],
+    }
+  })
 })
 
 test("correct task should be deleted", () => {
@@ -59,10 +107,7 @@ test("correct task should be created at correct array", () => {
 })
 
 test("correct task should change its status", () => {
-  const endState = tasksSlice(
-    startState,
-    changeTaskStatusAC({ todolistId: "todolistId2", taskId: "2", isDone: false }),
-  )
+  const endState = tasksSlice(startState, changeTaskStatusAC({ todolistId: "todolistId2", taskId: "2", isDone: false }))
 
   expect(endState.todolistId2[1].isDone).toBe(false)
   expect(endState.todolistId1[1].isDone).toBe(true)
