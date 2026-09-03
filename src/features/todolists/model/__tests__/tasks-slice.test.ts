@@ -1,99 +1,99 @@
 import { beforeEach, expect, test } from "vitest"
-import {
-  changeTaskStatusAC,
-  changeTaskTitleAC,
-  createTaskAC,
-  deleteTaskAC,
-  tasksSlice,
-  type TasksState,
-} from "../tasks-slice"
-import { createTodolistAC, deleteTodolistAC } from "../todolists-slice"
+import { createTaskTC, deleteTaskTC, tasksReducer, tasksSlice, type TasksState, updateTaskTC } from "../tasks-slice"
 import { TaskPriority, TaskStatus } from "@/common/enums"
+import { DomainTask } from "@/features/todolists/api/tasksApi.types.ts"
 
 let startState: TasksState = {}
 
-beforeEach(() => {
-  const taskDefaultValues = {
-    description: "",
-    deadline: "",
-    addedDate: "",
-    startDate: "",
-    priority: TaskPriority.Low,
-    order: 0,
-  }
+const taskDefaultValues = {
+  description: "",
+  deadline: "",
+  addedDate: "",
+  startDate: "",
+  priority: TaskPriority.Low,
+  order: 0,
+}
 
-  beforeEach(() => {
-    startState = {
-      todolistId1: [
-        {
-          id: "1",
-          title: "CSS",
-          status: TaskStatus.New,
-          todoListId: "todolistId1",
-          ...taskDefaultValues,
-        },
-        {
-          id: "2",
-          title: "JS",
-          status: TaskStatus.Completed,
-          todoListId: "todolistId1",
-          ...taskDefaultValues,
-        },
-        {
-          id: "3",
-          title: "React",
-          status: TaskStatus.New,
-          todoListId: "todolistId1",
-          ...taskDefaultValues,
-        },
-      ],
-      todolistId2: [
-        {
-          id: "1",
-          title: "bread",
-          status: TaskStatus.New,
-          todoListId: "todolistId2",
-          ...taskDefaultValues,
-        },
-        {
-          id: "2",
-          title: "milk",
-          status: TaskStatus.Completed,
-          todoListId: "todolistId2",
-          ...taskDefaultValues,
-        },
-        {
-          id: "3",
-          title: "tea",
-          status: TaskStatus.New,
-          todoListId: "todolistId2",
-          ...taskDefaultValues,
-        },
-      ],
-    }
-  })
+beforeEach(() => {
+  startState = {
+    todolistId1: [
+      {
+        id: "1",
+        title: "CSS",
+        status: TaskStatus.New,
+        todoListId: "todolistId1",
+        ...taskDefaultValues,
+      },
+      {
+        id: "2",
+        title: "JS",
+        status: TaskStatus.Completed,
+        todoListId: "todolistId1",
+        ...taskDefaultValues,
+      },
+      {
+        id: "3",
+        title: "React",
+        status: TaskStatus.New,
+        todoListId: "todolistId1",
+        ...taskDefaultValues,
+      },
+    ],
+    todolistId2: [
+      {
+        id: "1",
+        title: "bread",
+        status: TaskStatus.New,
+        todoListId: "todolistId2",
+        ...taskDefaultValues,
+      },
+      {
+        id: "2",
+        title: "milk",
+        status: TaskStatus.Completed,
+        todoListId: "todolistId2",
+        ...taskDefaultValues,
+      },
+      {
+        id: "3",
+        title: "tea",
+        status: TaskStatus.New,
+        todoListId: "todolistId2",
+        ...taskDefaultValues,
+      },
+    ],
+  }
 })
 
 test("correct task should be deleted", () => {
-  const endState = tasksSlice(startState, deleteTaskAC({ todolistId: "todolistId2", taskId: "2" }))
+  const endState = tasksReducer(
+    startState,
+    deleteTaskTC.fulfilled({ todolistId: "todolistId1", taskId: "1" }, "requestId", {
+      todolistId: "todolistId1",
+      taskId: "1",
+    }),
+  )
 
-  expect(endState).toEqual({
-    todolistId1: [
-      { id: "1", title: "CSS", isDone: false },
-      { id: "2", title: "JS", isDone: true },
-      { id: "3", title: "React", isDone: false },
-    ],
-    todolistId2: [
-      { id: "1", title: "bread", isDone: false },
-      { id: "3", title: "tea", isDone: false },
-    ],
-  })
+  expect(endState.todolistId1.length).toBe(2)
+  expect(endState.todolistId2.length).toBe(3)
 })
 
 test("correct task should be created at correct array", () => {
-  const endState = tasksSlice(
+  const newTask: DomainTask = {
+    description: "test",
+    title: "juice",
+    status: TaskStatus.New,
+    priority: TaskPriority.Low,
+    startDate: "",
+    deadline: "",
+    id: "4",
+    todoListId: "todolistId2",
+    order: 0,
+    addedDate: "",
+  }
+  const endState = tasksReducer(
     startState,
-    createTaskAC({
+    createTaskTC.fulfilled({ task: newTask }, "requestId", {
       todolistId: "todolistId2",
       title: "juice",
     }),
@@ -103,23 +103,32 @@ test("correct task should be created at correct array", () => {
   expect(endState.todolistId2.length).toBe(4)
   expect(endState.todolistId2[0].id).toBeDefined()
   expect(endState.todolistId2[0].title).toBe("juice")
-  expect(endState.todolistId2[0].isDone).toBe(false)
+  expect(endState.todolistId2[0].description).toBe("test")
 })
 
-test("correct task should change its status", () => {
-  const endState = tasksSlice(startState, changeTaskStatusAC({ todolistId: "todolistId2", taskId: "2", isDone: false }))
-
-  expect(endState.todolistId2[1].isDone).toBe(false)
-  expect(endState.todolistId1[1].isDone).toBe(true)
-})
-
-test("correct task should change its title", () => {
-  const endState = tasksSlice(
+test("correct task should changed", () => {
+  const newTask: DomainTask = {
+    description: "test",
+    title: "test-title",
+    status: TaskStatus.New,
+    priority: TaskPriority.Low,
+    startDate: "",
+    deadline: "",
+    id: "2",
+    todoListId: "todolistId2",
+    order: 0,
+    addedDate: "",
+  }
+  const endState = tasksReducer(
     startState,
-    changeTaskTitleAC({ todolistId: "todolistId2", taskId: "2", title: "coffee" }),
+    updateTaskTC.fulfilled({ task: newTask }, "requestId", {
+      todolistId: "todolistId2",
+      taskId: "2",
+      model: { title: "test-title" },
+    }),
   )
 
-  expect(endState.todolistId2[1].title).toBe("coffee")
+  expect(endState.todolistId2[1].title).toBe("test-title")
   expect(endState.todolistId1[1].title).toBe("JS")
 })
 
