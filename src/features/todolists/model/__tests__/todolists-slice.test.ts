@@ -1,6 +1,13 @@
 import { nanoid } from "@reduxjs/toolkit"
 import { beforeEach, expect, test } from "vitest"
-import { changeTodolistFilterAC, deleteTodolistTC, DomainTodolist, todolistsReducer } from "../todolists-slice"
+import {
+  changeTodolistFilterAC,
+  createTodolistTC,
+  deleteTodolistTC,
+  DomainTodolist,
+  todolistsReducer,
+} from "../todolists-slice"
+import { Todolist } from "@/features/todolists/api/todolistsApi.types.ts"
 
 let todolistId1: string
 let todolistId2: string
@@ -27,11 +34,22 @@ test("correct todolist should be deleted", () => {
 })
 
 test("correct todolist should be created", () => {
-  const title = "New todolist"
-  const endState = todolistsReducer(startState, createTodolistAC(title))
+  const title = "New Todolist"
+  const newTodolist: Todolist = {
+    id: "3",
+    title,
+    addedDate: "",
+    order: 0,
+  }
+  const endState = todolistsReducer(
+    startState,
+    createTodolistTC.fulfilled({ todolist: newTodolist }, "requestId", { title }),
+  )
 
   expect(endState.length).toBe(3)
-  expect(endState[2].title).toBe(title)
+  expect(endState[0].title).toBe("New Todolist")
+  expect(endState[0].id).toBe("3")
+  expect(endState[0].filter).toBe("all")
 })
 
 test("correct todolist should change its title", () => {
