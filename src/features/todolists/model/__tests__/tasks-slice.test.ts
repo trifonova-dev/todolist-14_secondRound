@@ -1,7 +1,8 @@
 import { beforeEach, expect, test } from "vitest"
-import { createTaskTC, deleteTaskTC, tasksReducer, tasksSlice, type TasksState, updateTaskTC } from "../tasks-slice"
+import { createTaskTC, deleteTaskTC, tasksReducer, type TasksState, updateTaskTC } from "../tasks-slice"
 import { TaskPriority, TaskStatus } from "@/common/enums"
 import { DomainTask } from "@/features/todolists/api/tasksApi.types.ts"
+import { createTodolistTC, deleteTodolistTC } from "@/features/todolists/model/todolists-slice.ts"
 
 let startState: TasksState = {}
 
@@ -133,7 +134,16 @@ test("correct task should changed", () => {
 })
 
 test("array should be created for new todolist", () => {
-  const endState = tasksSlice(startState, createTodolistAC("New todolist"))
+  const NewTodolist = {
+    id: "todolistId3",
+    title: "New todolist",
+    addedDate: "",
+    order: 0,
+  }
+  const endState = tasksReducer(
+    startState,
+    createTodolistTC.fulfilled({ todolist: NewTodolist }, "requestId", { title: "New todolist" }),
+  )
 
   const keys = Object.keys(endState)
   const newKey = keys.find((k) => k !== "todolistId1" && k !== "todolistId2")
@@ -146,7 +156,10 @@ test("array should be created for new todolist", () => {
 })
 
 test("property with todolistId should be deleted", () => {
-  const endState = tasksSlice(startState, deleteTodolistAC({ id: "todolistId2" }))
+  const endState = tasksReducer(
+    startState,
+    deleteTodolistTC.fulfilled({ id: "todolistId2" }, "requestId", { id: "todolistId2" }),
+  )
 
   const keys = Object.keys(endState)
 
