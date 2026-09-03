@@ -2,6 +2,7 @@ import { nanoid } from "@reduxjs/toolkit"
 import { beforeEach, expect, test } from "vitest"
 import {
   changeTodolistFilterAC,
+  changeTodolistTitleTC,
   createTodolistTC,
   deleteTodolistTC,
   DomainTodolist,
@@ -54,7 +55,11 @@ test("correct todolist should be created", () => {
 
 test("correct todolist should change its title", () => {
   const title = "New title"
-  const endState = todolistsReducer(startState, changeTodolistTitleAC({ id: todolistId2, title }))
+  const endState = todolistsReducer(
+    startState,
+    changeTodolistTitleTC.fulfilled(
+      { id: todolistId2, title }, "requestId", { id: todolistId2, title }),
+  )
 
   expect(endState[0].title).toBe("What to learn")
   expect(endState[1].title).toBe(title)
@@ -62,7 +67,8 @@ test("correct todolist should change its title", () => {
 
 test("correct todolist should change its filter", () => {
   const filter = "completed"
-  const endState = todolistsReducer(startState, changeTodolistFilterAC({ id: todolistId2, filter }))
+  const endState = todolistsReducer(
+    startState, changeTodolistFilterAC({ id: todolistId2, filter }))
 
   expect(endState[0].filter).toBe("all")
   expect(endState[1].filter).toBe(filter)
