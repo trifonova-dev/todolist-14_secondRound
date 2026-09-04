@@ -5,7 +5,6 @@ import Paper from "@mui/material/Paper"
 import { useEffect } from "react"
 import { TodolistItem } from "./TodolistItem/TodolistItem"
 
-
 export const Todolists = () => {
   const todolists = useAppSelector(selectTodolists)
 

@@ -14,12 +14,7 @@ export const Tasks = ({ todolist }: Props) => {
   const { id, filter } = todolist
 
   const tasks = useAppSelector(selectTasks)
-
   const dispatch = useAppDispatch()
-
-  useEffect(() => {
-    dispatch(fetchTasksTC(id))
-  }, [])
 
   const todolistTasks = tasks[id]
   let filteredTasks = todolistTasks
@@ -29,7 +24,9 @@ export const Tasks = ({ todolist }: Props) => {
   if (filter === "completed") {
     filteredTasks = todolistTasks.filter((task) => task.status === TaskStatus.Completed)
   }
-
+  useEffect(() => {
+    dispatch(fetchTasksTC({ todolistId: id }))
+  }, [])
   return (
     <>
       {filteredTasks?.length === 0 ? (
