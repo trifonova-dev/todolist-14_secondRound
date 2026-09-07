@@ -42,11 +42,14 @@ export const tasksSlice = createAppSlice({
       },
     ),
     createTaskTC: create.asyncThunk(
-      async (arg: { todolistId: string; title: string }, { rejectWithValue }) => {
+      async (arg: { todolistId: string; title: string }, { rejectWithValue, dispatch }) => {
         try {
+          dispatch(setAppStatusAC({ status: "loading" }))
           const res = await tasksApi.createTask(arg)
+          dispatch(setAppStatusAC({ status: "succeeded" }))
           return { task: res.data.data.item }
         } catch (e) {
+          dispatch(setAppStatusAC({ status: "failed" }))
           return rejectWithValue(null)
         }
       },
@@ -57,11 +60,14 @@ export const tasksSlice = createAppSlice({
       },
     ),
     deleteTaskTC: create.asyncThunk(
-      async (arg: { todolistId: string; taskId: string }, { rejectWithValue }) => {
+      async (arg: { todolistId: string; taskId: string }, { rejectWithValue, dispatch }) => {
         try {
+          dispatch(setAppStatusAC({ status: "loading" }))
           await tasksApi.deleteTask(arg)
+          dispatch(setAppStatusAC({ status: "succeeded" }))
           return arg
         } catch (e) {
+          dispatch(setAppStatusAC({ status: "failed" }))
           return rejectWithValue(null)
         }
       },
@@ -78,7 +84,7 @@ export const tasksSlice = createAppSlice({
     updateTask: create.asyncThunk(
       async (
         arg: { todolistId: string; taskId: string; domainModel: Partial<UpdateTaskModel> },
-        { rejectWithValue, getState },
+        { rejectWithValue, getState, dispatch },
       ) => {
         const { todolistId, taskId, domainModel } = arg
         const tasks = (getState() as RootState).tasks[todolistId]
@@ -88,9 +94,12 @@ export const tasksSlice = createAppSlice({
         }
 
         try {
+          dispatch(setAppStatusAC({ status: "loading" }))
           const res = await tasksApi.updateTask(arg)
+          dispatch(setAppStatusAC({ status: "succeeded" }))
           return { task: res.data.data.item, todolistId, taskId, domainModel }
         } catch (e) {
+          dispatch(setAppStatusAC({ status: "failed" }))
           return rejectWithValue(null)
         }
       },
