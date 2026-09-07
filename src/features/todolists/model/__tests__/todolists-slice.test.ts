@@ -4,6 +4,7 @@ import {
   changeTodolistFilterAC,
   changeTodolistTitleAC,
   createTodolistAC,
+  createTodolistTC,
   deleteTodolistAC,
   deleteTodolistTC,
   DomainTodolist,
@@ -37,10 +38,15 @@ test("correct todolist should be deleted", () => {
 
 test("correct todolist should be created", () => {
   const title = "New todolist"
-  const endState = todolistsSlice(startState, createTodolistAC(title))
+  const endState = todolistsReducer(
+    startState,
+    createTodolistTC.fulfilled({ todolist: { id: "3", title: "New todolist", order: 0, addedDate: "" } }, "requestId", {
+      title,
+    }),
+  )
 
   expect(endState.length).toBe(3)
-  expect(endState[2].title).toBe(title)
+  expect(endState[0].title).toBe(title)
 })
 
 test("correct todolist should change its title", () => {
