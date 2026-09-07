@@ -20,7 +20,7 @@ export type GetTasksResponse = {
 }
 
 export type UpdateTaskModel = {
-  description: string
+  description: string | undefined
   title: string
   status: TaskStatus
   priority: TaskPriority
