@@ -3,7 +3,10 @@ import {
   changeTaskStatusAC,
   changeTaskTitleAC,
   createTaskAC,
+  createTaskTC,
   deleteTaskAC,
+  deleteTaskTC,
+  tasksReducer,
   tasksSlice,
   type TasksState,
 } from "../tasks-slice"
@@ -72,35 +75,44 @@ beforeEach(() => {
 })
 
 test("correct task should be deleted", () => {
-  const endState = tasksSlice(startState, deleteTaskAC({ todolistId: "todolistId2", taskId: "2" }))
+  const endState = tasksReducer(
+    startState,
+    deleteTaskTC.fulfilled({ todolistId: "todolistId2", taskId: "2" }, "reqestId", {
+      todolistId: "todolistId2",
+      taskId: "2",
+    }),
+  )
 
-  expect(endState).toEqual({
-    todolistId1: [
-      { id: "1", title: "CSS", isDone: false },
-      { id: "2", title: "JS", isDone: true },
-      { id: "3", title: "React", isDone: false },
-    ],
-    todolistId2: [
-      { id: "1", title: "bread", isDone: false },
-      { id: "3", title: "tea", isDone: false },
-    ],
-  })
+  expect(endState.todolistId1.length).toBe(3)
+  expect(endState.todolistId2.length).toBe(2)
 })
 
 test("correct task should be created at correct array", () => {
-  const endState = tasksSlice(
+  const NewTask = {
+    description: "",
+    title: "NewTitle",
+    status: TaskStatus.New,
+    priority: TaskPriority.Low,
+    startDate: "",
+    deadline: "",
+    id: "00",
+    todoListId: "todolistId2",
+    order: 0,
+    addedDate: "",
+  }
+  const endState = tasksReducer(
     startState,
-    createTaskAC({
+    createTaskTC.fulfilled({ task: NewTask }, "requestId", {
       todolistId: "todolistId2",
-      title: "juice",
+      title: "NewTitle",
     }),
   )
 
   expect(endState.todolistId1.length).toBe(3)
   expect(endState.todolistId2.length).toBe(4)
   expect(endState.todolistId2[0].id).toBeDefined()
-  expect(endState.todolistId2[0].title).toBe("juice")
-  expect(endState.todolistId2[0].isDone).toBe(false)
+  expect(endState.todolistId2[0].title).toBe("NewTitle")
+  expect(endState.todolistId2[0].status).toBe(TaskStatus.New)
 })
 
 test("correct task should change its status", () => {

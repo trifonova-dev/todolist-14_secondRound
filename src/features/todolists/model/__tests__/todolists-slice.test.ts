@@ -2,15 +2,11 @@ import { nanoid } from "@reduxjs/toolkit"
 import { beforeEach, expect, test } from "vitest"
 import {
   changeTodolistFilterAC,
-  changeTodolistTitleAC,
   changeTodolistTitleTC,
-  createTodolistAC,
   createTodolistTC,
-  deleteTodolistAC,
   deleteTodolistTC,
   DomainTodolist,
   todolistsReducer,
-  todolistsSlice,
 } from "../todolists-slice"
 
 let todolistId1: string
