@@ -1,7 +1,7 @@
 import { createTodolistTC, deleteTodolistTC } from "./todolists-slice"
 import { createAppSlice } from "@/common/utils"
 import { tasksApi } from "@/features/todolists/api/tasksApi.ts"
-import { DomainTask, UpdateTaskModel } from "@/features/todolists/api/tasksApi.types.ts"
+import { DomainTask } from "@/features/todolists/api/tasksApi.types.ts"
 import { RootState } from "@/app/store.ts"
 import { setAppStatusAC } from "@/app/app-slice.ts"
 
@@ -82,28 +82,20 @@ export const tasksSlice = createAppSlice({
       },
     ),
     updateTask: create.asyncThunk(
-      async (
-        arg: { todolistId: string; taskId: string; domainModel: Partial<UpdateTaskModel> },
-        { dispatch, rejectWithValue, getState },
-      ) => {
-        const { todolistId, taskId } = arg
+      async (arg: { todolistId: string; task: DomainTask }, { dispatch, rejectWithValue, getState }) => {
+        const { todolistId, task } = arg
 
         const tasks = (getState() as RootState).tasks[todolistId]
-        if (!tasks) {
-          return rejectWithValue(null)
-        }
-        const task = tasks.find((t) => t.id === taskId)
-        if (!task) return rejectWithValue(null)
+        if (!tasks) return rejectWithValue(null)
+
+        const existTask = tasks.find((t) => t.id === task.id)
+        if (!existTask) return rejectWithValue(null)
 
         try {
           dispatch(setAppStatusAC({ status: "loading" }))
-          const res = await tasksApi.updateTask(arg)
+          const res = await tasksApi.updateTask({ todolistId, taskId: task.id, domainModel: task })
           dispatch(setAppStatusAC({ status: "succeeded" }))
-          console.log("ПОЛНЫЙ ОТВЕТ:", res)
-          console.log("res.data:", res.data)
-          console.log("res.data.data:", res.data.data)
-          console.log("res.data.data.item:", res.data.data?.item)
-          return { task: res.data.data.item, todolistId }
+          return { updatedTask: res.data.data.item, todolistId }
         } catch (e) {
           dispatch(setAppStatusAC({ status: "failed" }))
           return rejectWithValue(null)
@@ -111,10 +103,10 @@ export const tasksSlice = createAppSlice({
       },
       {
         fulfilled: (state, action) => {
-          const { todolistId, task } = action.payload
-          const index = state[todolistId].findIndex((t) => t.id === task.id)
+          const { todolistId, updatedTask } = action.payload
+          const index = state[todolistId].findIndex((t) => t.id === updatedTask.id)
           if (index !== -1) {
-            state[todolistId][index] = task
+            state[todolistId][index] = updatedTask
           }
         },
       },
