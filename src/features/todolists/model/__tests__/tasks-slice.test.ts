@@ -107,7 +107,7 @@ test("correct task should be created at correct array", () => {
 })
 
 test("correct task should change its status", () => {
-  const updatedTask = {
+  const newTask = {
     id: "3",
     title: "CSS",
     status: TaskStatus.Completed,
@@ -116,15 +116,10 @@ test("correct task should change its status", () => {
   }
   const endState = tasksReducer(
     startState,
-    updateTask.fulfilled(
-      { task: updatedTask, todolistId: "todolistId2", taskId: "3", domainModel: { status: TaskStatus.Completed } },
-      "reqestId",
-      {
-        todolistId: "todolistId2",
-        taskId: "3",
-        domainModel: { status: TaskStatus.Completed },
-      },
-    ),
+    updateTask.fulfilled({ updatedTask: newTask, todolistId: "todolistId2" }, "reqestId", {
+      todolistId: "todolistId2",
+      task: newTask,
+    }),
   )
 
   expect(endState.todolistId2[2].status).toBe(TaskStatus.Completed)
