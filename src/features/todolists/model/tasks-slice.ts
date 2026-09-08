@@ -84,20 +84,26 @@ export const tasksSlice = createAppSlice({
     updateTask: create.asyncThunk(
       async (
         arg: { todolistId: string; taskId: string; domainModel: Partial<UpdateTaskModel> },
-        { rejectWithValue, getState, dispatch },
+        { dispatch, rejectWithValue, getState },
       ) => {
-        const { todolistId, taskId, domainModel } = arg
+        const { todolistId, taskId } = arg
+
         const tasks = (getState() as RootState).tasks[todolistId]
-        const updatedTask = tasks.find((task) => task.id === taskId)
-        if (!updatedTask) {
+        if (!tasks) {
           return rejectWithValue(null)
         }
+        const task = tasks.find((t) => t.id === taskId)
+        if (!task) return rejectWithValue(null)
 
         try {
           dispatch(setAppStatusAC({ status: "loading" }))
           const res = await tasksApi.updateTask(arg)
           dispatch(setAppStatusAC({ status: "succeeded" }))
-          return { task: res.data.data.item, todolistId, taskId, domainModel }
+          console.log("ПОЛНЫЙ ОТВЕТ:", res)
+          console.log("res.data:", res.data)
+          console.log("res.data.data:", res.data.data)
+          console.log("res.data.data.item:", res.data.data?.item)
+          return { task: res.data.data.item, todolistId }
         } catch (e) {
           dispatch(setAppStatusAC({ status: "failed" }))
           return rejectWithValue(null)
@@ -105,10 +111,10 @@ export const tasksSlice = createAppSlice({
       },
       {
         fulfilled: (state, action) => {
-          const { todolistId, domainModel, taskId } = action.payload
-          const index = state[todolistId].findIndex((task) => task.id === taskId)
+          const { todolistId, task } = action.payload
+          const index = state[todolistId].findIndex((t) => t.id === task.id)
           if (index !== -1) {
-            state[todolistId][index] = { ...state[todolistId][index], ...domainModel }
+            state[todolistId][index] = task
           }
         },
       },

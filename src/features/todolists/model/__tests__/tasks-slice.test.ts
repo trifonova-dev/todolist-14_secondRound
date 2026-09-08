@@ -1,17 +1,8 @@
 import { beforeEach, expect, test } from "vitest"
-import {
-  changeTaskStatusAC,
-  changeTaskTitleAC,
-  createTaskAC,
-  createTaskTC,
-  deleteTaskAC,
-  deleteTaskTC,
-  tasksReducer,
-  tasksSlice,
-  type TasksState,
-} from "../tasks-slice"
-import { createTodolistAC, deleteTodolistAC } from "../todolists-slice"
+import { createTaskTC, deleteTaskTC, tasksReducer, tasksSlice, type TasksState, updateTask } from "../tasks-slice"
+import { createTodolistAC, createTodolistTC, deleteTodolistAC } from "../todolists-slice"
 import { TaskPriority, TaskStatus } from "@/common/enums"
+import { UpdateTaskModel } from "@/features/todolists/api/tasksApi.types.ts"
 
 let startState: TasksState = {}
 const taskDefaultValues = {
@@ -116,24 +107,32 @@ test("correct task should be created at correct array", () => {
 })
 
 test("correct task should change its status", () => {
-  const endState = tasksSlice(startState, changeTaskStatusAC({ todolistId: "todolistId2", taskId: "2", isDone: false }))
-
-  expect(endState.todolistId2[1].isDone).toBe(false)
-  expect(endState.todolistId1[1].isDone).toBe(true)
-})
-
-test("correct task should change its title", () => {
-  const endState = tasksSlice(
+  const updatedTask = {
+    id: "3",
+    title: "CSS",
+    status: TaskStatus.Completed,
+    todoListId: "todolistId2",
+    ...taskDefaultValues,
+  }
+  const endState = tasksReducer(
     startState,
-    changeTaskTitleAC({ todolistId: "todolistId2", taskId: "2", title: "coffee" }),
+    updateTask.fulfilled(
+      { task: updatedTask, todolistId: "todolistId2", taskId: "3", domainModel: { status: TaskStatus.Completed } },
+      "reqestId",
+      {
+        todolistId: "todolistId2",
+        taskId: "3",
+        domainModel: { status: TaskStatus.Completed },
+      },
+    ),
   )
 
-  expect(endState.todolistId2[1].title).toBe("coffee")
-  expect(endState.todolistId1[1].title).toBe("JS")
+  expect(endState.todolistId2[2].status).toBe(TaskStatus.Completed)
+  expect(endState.todolistId1[2].status).toBe(TaskStatus.New)
 })
 
 test("array should be created for new todolist", () => {
-  const endState = tasksSlice(startState, createTodolistAC("New todolist"))
+  const endState = tasksReducer(startState, createTodolistTC.fulfilled("New todolist"))
 
   const keys = Object.keys(endState)
   const newKey = keys.find((k) => k !== "todolistId1" && k !== "todolistId2")
