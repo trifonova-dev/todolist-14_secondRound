@@ -1,8 +1,7 @@
 import { beforeEach, expect, test } from "vitest"
 import { createTaskTC, deleteTaskTC, tasksReducer, tasksSlice, type TasksState, updateTask } from "../tasks-slice"
-import { createTodolistAC, createTodolistTC, deleteTodolistAC } from "../todolists-slice"
+import { createTodolistTC, deleteTodolistAC } from "../todolists-slice"
 import { TaskPriority, TaskStatus } from "@/common/enums"
-import { UpdateTaskModel } from "@/features/todolists/api/tasksApi.types.ts"
 
 let startState: TasksState = {}
 const taskDefaultValues = {
@@ -127,7 +126,17 @@ test("correct task should change its status", () => {
 })
 
 test("array should be created for new todolist", () => {
-  const endState = tasksReducer(startState, createTodolistTC.fulfilled("New todolist"))
+  const newTodolist = {
+    id: "todolistId3", // ID списка
+    title: "New todolist", // Название списка
+    addedDate: "", // Дата создания
+    order: 0, // Порядок
+  }
+  const endState = tasksReducer(
+    startState,
+    createTodolistTC.fulfilled(
+      { todolist: newTodolist }, "reqestId", { title: "New todolist" }),
+  )
 
   const keys = Object.keys(endState)
   const newKey = keys.find((k) => k !== "todolistId1" && k !== "todolistId2")
