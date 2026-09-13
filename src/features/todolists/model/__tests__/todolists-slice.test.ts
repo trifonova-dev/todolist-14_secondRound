@@ -1,41 +1,55 @@
-import type { Todolist } from "@/features/todolists/api/todolistsApi.types"
 import { nanoid } from "@reduxjs/toolkit"
 import { beforeEach, expect, test } from "vitest"
 import {
   changeTodolistFilterAC,
   changeTodolistTitleAC,
-  createTodolistAC,
-  deleteTodolistAC,
+  createTodolistTC,
+  deleteTodolistTC,
+  DomainTodolist,
+  todolistsReducer,
   todolistsSlice,
 } from "../todolists-slice"
 
 let todolistId1: string
 let todolistId2: string
-let startState: Todolist[] = []
+let startState: DomainTodolist[] = []
 
 beforeEach(() => {
   todolistId1 = nanoid()
   todolistId2 = nanoid()
 
   startState = [
-    { id: todolistId1, title: "What to learn", filter: "all" },
-    { id: todolistId2, title: "What to buy", filter: "all" },
+    { id: todolistId1, title: "What to learn", addedDate: "", order: 0, filter: "all" },
+    { id: todolistId2, title: "What to buy", addedDate: "", order: 0, filter: "all" },
   ]
 })
 
 test("correct todolist should be deleted", () => {
-  const endState = todolistsSlice(startState, deleteTodolistAC({ id: todolistId1 }))
+  const endState = todolistsReducer(
+    startState,
+    deleteTodolistTC.fulfilled({ todolistId: todolistId1 }, "reqestId", { todolistId: todolistId1 }),
+  )
 
   expect(endState.length).toBe(1)
   expect(endState[0].id).toBe(todolistId2)
 })
 
 test("correct todolist should be created", () => {
-  const title = "New todolist"
-  const endState = todolistsSlice(startState, createTodolistAC(title))
+  const newTodolist = {
+    id: "todolistId3",
+    title: "new title",
+    addedDate: "",
+    updatedDate: "",
+    order: 0,
+  }
+  const title = "new title"
+  const endState = todolistsReducer(
+    startState,
+    createTodolistTC.fulfilled({ todolist: { item: newTodolist } }, "reqestId", { title: "new title" }),
+  )
 
   expect(endState.length).toBe(3)
-  expect(endState[2].title).toBe(title)
+  expect(endState[0].title).toBe(title)
 })
 
 test("correct todolist should change its title", () => {
