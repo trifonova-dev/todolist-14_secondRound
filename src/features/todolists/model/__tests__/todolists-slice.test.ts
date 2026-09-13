@@ -3,6 +3,7 @@ import { beforeEach, expect, test } from "vitest"
 import {
   changeTodolistFilterAC,
   changeTodolistTitleAC,
+  changeTodolistTitleTC,
   createTodolistTC,
   deleteTodolistTC,
   DomainTodolist,
@@ -54,7 +55,10 @@ test("correct todolist should be created", () => {
 
 test("correct todolist should change its title", () => {
   const title = "New title"
-  const endState = todolistsSlice(startState, changeTodolistTitleAC({ id: todolistId2, title }))
+  const endState = todolistsReducer(
+    startState,
+    changeTodolistTitleTC.fulfilled({ id: todolistId2, title }, "reqestId", { id: todolistId2, title: "New title" }),
+  )
 
   expect(endState[0].title).toBe("What to learn")
   expect(endState[1].title).toBe(title)
