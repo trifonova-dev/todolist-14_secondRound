@@ -1,6 +1,6 @@
 import { beforeEach, expect, test } from "vitest"
-import { createTaskTC, deleteTaskTC, tasksReducer, tasksSlice, type TasksState, updateTaskTC } from "../tasks-slice"
-import { createTodolistTC, deleteTodolistAC } from "../todolists-slice"
+import { createTaskTC, deleteTaskTC, tasksReducer, type TasksState, updateTaskTC } from "../tasks-slice"
+import { createTodolistTC, deleteTodolistTC } from "../todolists-slice"
 import { TaskPriority, TaskStatus } from "@/common/enums"
 
 let startState: TasksState = {}
@@ -143,7 +143,10 @@ test("array should be created for new todolist", () => {
 })
 
 test("property with todolistId should be deleted", () => {
-  const endState = tasksSlice(startState, deleteTodolistAC({ id: "todolistId2" }))
+  const endState = tasksReducer(
+    startState,
+    deleteTodolistTC.fulfilled({ todolistId: "todolistId2" }, "requestId", { todolistId: "todolistId2" }),
+  )
 
   const keys = Object.keys(endState)
 
