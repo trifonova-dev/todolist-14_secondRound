@@ -14,10 +14,10 @@ export const tasksSlice = createAppSlice({
   extraReducers: (builder) => {
     builder
       .addCase(createTodolistTC.fulfilled, (state, action) => {
-        state[action.payload.todolist.id] = []
+        state[action.payload.todolist.item.id] = []
       })
       .addCase(deleteTodolistTC.fulfilled, (state, action) => {
-        delete state[action.payload.id]
+        delete state[action.payload.todolistId]
       })
   },
   reducers: (create) => ({
@@ -114,7 +114,8 @@ export const tasksSlice = createAppSlice({
 
       {
         fulfilled: (state, action) => {
-          const index = state[action.payload.task.todoListId].findIndex((t) => t.id === action.payload.task.id)
+          const todolistId = action.payload.task.todoListId
+          const index = state[todolistId].findIndex((t) => t.id === action.payload.task.id)
           if (index != -1) {
             state[action.payload.todolistId][index] = action.payload.task
           }

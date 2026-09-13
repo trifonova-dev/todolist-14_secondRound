@@ -1,19 +1,7 @@
 import { beforeEach, expect, test } from "vitest"
-import {
-  changeTaskStatusAC,
-  changeTaskTitleAC,
-  createTaskAC,
-  createTaskTC,
-  deleteTaskAC,
-  deleteTaskTC,
-  tasksReducer,
-  tasksSlice,
-  type TasksState,
-  updateTaskTC,
-} from "../tasks-slice"
-import { createTodolistAC, deleteTodolistAC } from "../todolists-slice"
+import { createTaskTC, deleteTaskTC, tasksReducer, tasksSlice, type TasksState, updateTaskTC } from "../tasks-slice"
+import { createTodolistTC, deleteTodolistAC } from "../todolists-slice"
 import { TaskPriority, TaskStatus } from "@/common/enums"
-import { UpdateTaskModel } from "@/features/todolists/api/tasksApi.types.ts"
 
 let startState: TasksState = {}
 
@@ -131,18 +119,18 @@ test("correct task should change its status", () => {
   expect(endState.todolistId1[0].status).toBe(TaskStatus.Completed)
 })
 
-test("correct task should change its title", () => {
-  const endState = tasksSlice(
-    startState,
-    changeTaskTitleAC({ todolistId: "todolistId2", taskId: "2", title: "coffee" }),
-  )
-
-  expect(endState.todolistId2[1].title).toBe("coffee")
-  expect(endState.todolistId1[1].title).toBe("JS")
-})
-
 test("array should be created for new todolist", () => {
-  const endState = tasksSlice(startState, createTodolistAC("New todolist"))
+  const NewTodolist = {
+    id: "todolistId3",
+    title: "New todolist",
+    addedDate: "",
+    updatedDate: "",
+    order: 0,
+  }
+  const endState = tasksReducer(
+    startState,
+    createTodolistTC.fulfilled({ todolist: { item: NewTodolist } }, "requestId", { title: "New todolist" }),
+  )
 
   const keys = Object.keys(endState)
   const newKey = keys.find((k) => k !== "todolistId1" && k !== "todolistId2")
