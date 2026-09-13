@@ -66,7 +66,7 @@ test("correct todolist should change its title", () => {
 
 test("correct todolist should change its filter", () => {
   const filter = "completed"
-  const endState = todolistsSlice(startState, changeTodolistFilterAC({ id: todolistId2, filter }))
+  const endState = todolistsReducer(startState, changeTodolistFilterAC({ id: todolistId2, filter }))
 
   expect(endState[0].filter).toBe("all")
   expect(endState[1].filter).toBe(filter)
